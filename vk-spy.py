@@ -10,7 +10,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 VERSION = '5.68'
 TOKEN = '' # необходимо добавить токен
 VICTIM = ['tim_leary', '8822']
-N = 2 # количество друзей в группе
+N = 2 # не более, чем N друзей в группе
 
 
 def data_return(data):

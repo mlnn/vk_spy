@@ -206,6 +206,7 @@ if __name__ == '__main__':
     print('Программа завершила свою работу')
 
 # Проверка
+# import pprint
 # pprint(json.load(open('groups.json', 'r')))
 
 #'''

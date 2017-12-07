@@ -1,6 +1,5 @@
 import json
 import requests
-from pprint import pprint
 import time
 import functools
 import urllib.request, urllib.error
@@ -8,9 +7,9 @@ import ssl
 
 ssl._create_default_https_context = ssl._create_unverified_context
 VERSION = '5.68'
-TOKEN = '' # необходимо добавить токен
-VICTIM = ['tim_leary', '8822']
-N = 2 # не более, чем N друзей в группе
+TOKEN = '5dfd6b0dee902310df772082421968f4c06443abecbc082a8440cb18910a56daca73ac8d04b25154a1128' # необходимо добавить токен
+VICTIM = ['eshmargunov', '171691064']
+N = 2 # не более, чем N друзей в группе, цифра от 1
 
 
 def data_return(data):
@@ -129,7 +128,16 @@ def update_spy_groups(groups, dict):
 
 
 def get_spy_groups(friends_of_victim):
-    groups_of_victim = {}.fromkeys(get_groups(VICTIM[1]), 0)
+    temp = get_groups(VICTIM[1])
+    if temp == 'privacy_error':
+        print('Данные о группах заданного Вами пользователя закрыты')
+        if N > 1:
+            print('Будем искать только не более заданного N друзей жертвы')
+            groups_of_victim = {}
+        else:
+            return 'privacy_error'
+    else:
+        groups_of_victim = {}.fromkeys(temp, 0)
     for i, friend in enumerate(friends_of_victim):
         temp = get_groups(friend)
         while temp == 'wait':
@@ -152,34 +160,7 @@ def get_spy_groups(friends_of_victim):
     for i, item in groups_of_victim.items():
         if item < N:
             list_of_groups_of_victims.append(i)
-    print(list_of_groups_of_victims)
     return list_of_groups_of_victims
-
-
-def get_data_of_groups_with_friends(users, group):
-    connect = 1
-    while connect:
-        params = {
-            'v': VERSION,
-            'access_token': TOKEN,
-            'group_id': group,
-            'user_ids': str(users)[1:-1]
-        }
-        try:
-            response = requests.get('https://api.vk.com/method/groups.isMember', params, timeout=(1))
-            data = response.json()
-            connect = 0
-            try:
-                if data['error']['error_code'] == 6:
-                    return 'wait'
-                else:
-                    print('Неизвестная ошибка:', data['error'])
-            except:
-                return data['response']
-        except requests.exceptions.ReadTimeout:
-            print('Ошбика ReadTimeout, ожидание восстанавления соединение')
-        except requests.exceptions.ConnectTimeout:
-            print('Ошибка ConnectionTimeout, ожидание восстановления соединения')
 
 
 def divide_result_request(groups_of_victim):
@@ -210,12 +191,16 @@ if __name__ == '__main__':
     friends_of_victim = get_friends(VICTIM[1])
     if friends_of_victim:
         if friends_of_victim == 'Такого пользователя не существует':
-            print('Такого пользователя не существует')
+            print(friends_of_victim)
         else:
             groups_of_victim = get_spy_groups(friends_of_victim)
-            json_dump = divide_result_request(groups_of_victim)
-            json_dump = delete_extra_info(json_dump)
-            json.dump(json_dump, open('groups.json', 'w'))
+            if groups_of_victim != 'privacy_error':
+                json_dump = divide_result_request(groups_of_victim)
+                json_dump = delete_extra_info(json_dump)
+                json.dump(json_dump, open('groups.json', 'w'))
+            else:
+                print('У жертвы закрыты группы, попробуйте задать N и найти '
+                      'группы, в которых есть общие друзья, но не более, чем N человек')
     else:
         print('У заданного Вами пользователя нет друзей')
     print('Программа завершила свою работу')

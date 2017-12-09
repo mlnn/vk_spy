@@ -8,7 +8,7 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 VERSION = '5.68'
 TOKEN = '5dfd6b0dee902310df772082421968f4c06443abecbc082a8440cb18910a56daca73ac8d04b25154a1128' # необходимо добавить токен
-VICTIM = ['eshmargunov', '171691064']
+VICTIM = ['eshmargunov', '5030613']
 N = 2 # не более, чем N друзей в группе, цифра от 1
 
 
@@ -45,7 +45,7 @@ def get_friends(user):
                 connect = 0
                 return data_return(data)
             except requests.exceptions.ReadTimeout:
-                print('Ошбика ReadTimeout, ожидание восстанавления соединение')
+                print('Ошибка ReadTimeout, ожидание восстанавления соединение')
             except requests.exceptions.ConnectTimeout:
                 print('Ошибка ConnectionTimeout, ожидание восстановления соединения')
         else:
@@ -66,7 +66,7 @@ def get_friends(user):
                     connect = 0
                     return data_return(data)
                 except requests.exceptions.ReadTimeout:
-                    print('Ошбика ReadTimeout, ожидание восстанавления соединение')
+                    print('Ошибка ReadTimeout, ожидание восстанавления соединение')
                 except requests.exceptions.ConnectTimeout:
                     print('Ошибка ConnectionTimeout, ожидание восстановления соединения')
 
@@ -86,7 +86,7 @@ def get_groups(user):
             connect = 0
             return data_return(data)
         except requests.exceptions.ReadTimeout:
-            print('Ошбика ReadTimeout, ожидание восстанавления соединение')
+            print('Ошибка ReadTimeout, ожидание восстанавления соединение')
         except requests.exceptions.ConnectTimeout:
             print('Ошибка ConnectionTimeout, ожидание восстановления соединения')
 
@@ -112,7 +112,7 @@ def get_data_of_groups(groups):
             except:
                 return data['response']
         except requests.exceptions.ReadTimeout:
-            print('Ошбика ReadTimeout, ожидание восстанавления соединение')
+            print('Ошибка ReadTimeout, ожидание восстанавления соединение')
         except requests.exceptions.ConnectTimeout:
             print('Ошибка ConnectionTimeout, ожидание восстановления соединения')
 
@@ -195,9 +195,13 @@ if __name__ == '__main__':
         else:
             groups_of_victim = get_spy_groups(friends_of_victim)
             if groups_of_victim != 'privacy_error':
-                json_dump = divide_result_request(groups_of_victim)
-                json_dump = delete_extra_info(json_dump)
-                json.dump(json_dump, open('groups.json', 'w'))
+                if groups_of_victim:
+                    json_dump = divide_result_request(groups_of_victim)
+                    json_dump = delete_extra_info(json_dump)
+                    with open('groups.json', 'w') as f:
+                        json.dump(json_dump, f, ensure_ascii=False)
+                else:
+                    print('Для указанного пользователя по заданным параметрам результатов не получено')
             else:
                 print('У жертвы закрыты группы, попробуйте задать N и найти '
                       'группы, в которых есть общие друзья, но не более, чем N человек')
@@ -205,9 +209,4 @@ if __name__ == '__main__':
         print('У заданного Вами пользователя нет друзей')
     print('Программа завершила свою работу')
 
-# Проверка
-# import pprint
-# pprint(json.load(open('groups.json', 'r')))
-
-#'''
 
